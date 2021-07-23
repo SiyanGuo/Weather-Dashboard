@@ -11,10 +11,6 @@
     box-sizing: border-box;
   }
 
-
-  /* copy from git-it-done */
-
-
   body {
     background-color: var(--primary);
     margin: 0;
@@ -74,7 +70,7 @@
     display: inline;
   }
   
-  .btn-back {
+  /* .btn-back {
     border-radius: var(--border-radius);
     color: var(--primary);
     border: none;
@@ -95,7 +91,7 @@
     background-color: var(--tertiary);
     transform: translate(0, 0);
     box-shadow: 2px 2px var(--dark);
-  }
+  } */
   
   .hero {
     padding: 3% 4% 0%;
@@ -104,7 +100,6 @@
   }
   
   .hero p {
-    /* max-width: 75%; */
     text-align: center;
   }
   
@@ -113,11 +108,10 @@
     background-color: var(--primary);
     color: var(--dark);
     padding: 10px 15px;
-    /* display: inline-block; */
-    /* border-radius: var(--border-radius); */
     box-shadow: 9px 7px var(--light-dark);
     text-align: center;
     margin:0 350px;
+    font-family: 'Ubuntu', sans-serif;
   }
   
   .list-group {
@@ -134,57 +128,45 @@
     text-decoration: none;
     box-shadow: 3px 3px var(--dark);
     font-size:1.2rem;
+    transform: translate(-1px, -1px);
   }
   
   .list-item:hover {
     background-color: var(--tertiary);
+    transform: translate(0, 0);
   }
   
-  .status-icon {
+  /* .status-icon {
     padding: 2px 5px;
     margin: 0 5px;
     background-color: rgba(255,255,255, 1);
     border-radius: var(--border-radius);
-  }
+  } */
   
-  .icon-danger {
+  /* .icon-danger {
     color: rgb(255, 70, 70);
   }
   
   .icon-success {
     color: rgb(29, 153, 255);
-  }
+  } */
   
   /* CARDS */
   .card {
     margin: 0 0 50px 0;
-    /* border: 3px solid var(--dark); */
-    /* border-radius: var(--border-radius); */
   }
   
   .card-header {
     color: var(--light-dark);
     font-size: 1.6rem;
-    /* background-color: var(--dark); */
     padding-bottom: 2.5%;
-    border-radius: calc(.18rem - 1px) calc(.18rem - 1px) 0 0;
   }
   
-  /* .card-body {
-    padding-top: 2%;
-  } */
-  
+ 
   /* FORM */
-  /* .form-label, */
-  /* .form-textarea,  */
-     .form-input{
+  .form-input{
     display: block;
   }
-/*   
-  .form-label {
-    font-size: 1.1rem;
-    margin: 0 0 0 5px;
-  } */
   
   .form-input {
     width: 100%;
@@ -195,33 +177,47 @@
     border-radius: var(--border-radius);
   }
 
-  /* weather container */
+  /* WEATHER CONTAINER */
+  #current-title{
+      display: inline-block;
+  }
+
+  #uv{
+      padding:0 2%;
+      border-radius: var(--border-radius);
+
+  }
+  #weather-icon{
+      max-width: 50px;
+  }
   .current-container{
     border:solid 2px var(--light-dark);
-    padding: 3% 3% 1%;
+    padding: 2% 3% 1%;
     font-size: 2rem;
     line-height: 1.3;
-    margin-bottom: 20px;
-  }
+    margin-bottom: 40px;
+}
 .future-container{
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     line-height: 1.2;
     margin-bottom: 20px;
+    font-weight: bolder;
 }
 
 .forecast-card{
     border-radius: var(--border-radius);
     background-color: var(--dark);
     color:var(--primary);
-    padding:1%;
+    padding: 0 10px;
     margin-bottom:20px;
     font-weight: bolder;
+    box-shadow: 3px 3px var(--tertiary);
 }
 
 .forecast-card h5{
     color:var(--primary);
     font-size: 1.4rem;
-    padding:10px;
+    padding-top:15px;
 }
 
   
@@ -238,7 +234,6 @@
   .text-uppercase {
     text-transform: uppercase;
   }
-  
   
   /* FLEX CONTENT */
   .flex-row {
