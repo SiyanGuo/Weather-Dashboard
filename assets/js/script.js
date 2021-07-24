@@ -1,7 +1,4 @@
-// &appid=0c623f9105b9300955def28c3a75bb06
-// temp °C
-// wind speed meter/sec
-// humidity %
+
 var currentTitleEl = document.querySelector("#current-title");
 var windEl = document.querySelector("#wind");
 var humidityEl = document.querySelector("#humidity");
@@ -14,78 +11,88 @@ var searchHistoryEl = document.querySelector("#search-history");
 var forecastEl = document.querySelector("#forecast");
 
 var currentDate = moment().format('l');
+var cityLocation = {
+    cityName: "Toronto",
+    lat:"43.651070",
+    lon:"-79.347015"
+}
 
 //retrieve the city name
 var cityHandler = function (event) {
     event.preventDefault();
-    var cityName = cityInputEl.value.trim().toUpperCase();
-    getCurrentWeather(cityName);
+    var cityName = cityInputEl.value.trim();
+    console.log(cityName);
+    getLatLon(cityName);
+    cityFormEl.reset();
 }
 
 //handle history search links
 var historyLinkHandler = function (event) {
     var cityName = event.target.textContent;
-    getCurrentWeather(cityName)
+    var lat = event.target.getAttribute("data-lat");
+    var lon = event.target.getAttribute("data-lon");
+    var cityLocation = {
+        cityName: cityName,
+        lat: lat,
+        lon: lon,
+        history:true
+    }
+    getForecast(cityLocation);
 }
 
-// fetch API to request current weather data
-var getCurrentWeather = function (cityName) {
-    var apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&units=metric&appid=0c623f9105b9300955def28c3a75bb06"
+var getLatLon = function (cityName) {
+    var apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&appid=0c623f9105b9300955def28c3a75bb06"
     fetch(apiUrl).then(function (response) {
         if (response.ok) {
             response.json().then(function (data) {
-                //display current weather & a history link
-                displayCurrentWeather(data);
-                //display UVI and forecast 
-                getForecast(data);
+                console.log(data);
+                var cityLocation = {
+                    cityName: data[0].name,
+                    lat: data[0].lat,
+                    lon: data[0].lon
+                }
+                getForecast(cityLocation)
             })
         } else {
             alert("Whoops! We can't find what you are looking for.")
         }
     })
-        .catch(function (err) {
-            alert("Something is wrong with the internet connection.");
-        })
-};
-
-//display current weather and a history link
-var displayCurrentWeather = function (data) {
-    var iconCode = data.weather[0].icon;
-    var iconUrl = "http://openweathermap.org/img/wn/" + iconCode + "@2x.png"
-    var cityName = data.name;
-    var temp = data.main.temp;
-    var wind = data.wind.speed;
-    var humidity = data.main.humidity;
-
-    //display a history link
-    var historyLinkEl = document.createElement("a");
-    historyLinkEl.classList = "list-item flex-row justify-space-between align-center";
-    historyLinkEl.textContent = cityName;
-    searchHistoryEl.appendChild(historyLinkEl);
-
-    //display current weather
-    currentTitleEl.textContent = cityName + " " + currentDate;
-    tempEl.textContent = temp + "°C";
-    windEl.textContent = wind + "m/s";
-    humidityEl.textContent = humidity + "%";
-    weatherIconEl.setAttribute("src", iconUrl);
 }
+
+// fetch API to request current weather data
+// var getCurrentWeather = function (cityName) {
+//     var apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&units=metric&appid=0c623f9105b9300955def28c3a75bb06"
+//     fetch(apiUrl).then(function (response) {
+//         if (response.ok) {
+//             response.json().then(function (data) {
+//                 //display current weather & a history link
+//                 displayCurrentWeather(data);
+//                 //display UVI and forecast 
+//                 getForecast(data);
+//             })
+//         } else {
+//             alert("Whoops! We can't find what you are looking for.")
+//         }
+//     })
+//         .catch(function (err) {
+//             alert("Something is wrong with the internet connection.");
+//         })
+// };
 
 
 //fetch forecast data and UVI
-var getForecast = function (data) {
-
-    var lat = data.coord.lat;
-    var lon = data.coord.lon;
-    var apiUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&exclude=minutely,hourly,alerts&units=metric&appid=0c623f9105b9300955def28c3a75bb06";
-
+var getForecast = function (cityLocation) {
+    displayCityName(cityLocation);
+    //fetch API
+    var apiUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + cityLocation.lat + "&lon=" + cityLocation.lon + "&exclude=minutely,hourly,alerts&units=metric&appid=0c623f9105b9300955def28c3a75bb06";
     fetch(apiUrl).then(function (response) {
         if (response.ok) {
             response.json().then(function (data) {
                 console.log("APIdata", data);
+                var currentData = data.current;
                 var uv = data.current.uvi;
                 var forecastData = data.daily;
-                uvEl.textContent = uv;
+                displayCurrentWeather(currentData);
                 displayUv(uv);
                 displayForecast(forecastData);
             })
@@ -97,6 +104,37 @@ var getForecast = function (data) {
             alert("Something is wrong with the internet connection.");
         })
 };
+
+var displayCityName = function (cityLocation){
+    //display city name - heading
+    currentTitleEl.textContent = cityLocation.cityName + " " + currentDate;
+
+    //create a history link if it's new
+    if(!cityLocation.history){
+        var historyLinkEl = document.createElement("a");
+        historyLinkEl.classList = "list-item flex-row justify-space-between align-center";
+        historyLinkEl.textContent = cityLocation.cityName;
+        historyLinkEl.setAttribute("data-lat", cityLocation.lat);
+        historyLinkEl.setAttribute("data-lon", cityLocation.lon);
+        searchHistoryEl.appendChild(historyLinkEl);
+    }
+}
+
+// display current weather
+var displayCurrentWeather = function (data) {
+
+    var iconCode = data.weather[0].icon;
+    var iconUrl = "http://openweathermap.org/img/wn/" + iconCode + "@2x.png"
+    var temp = data.temp;
+    var wind = data.wind_speed;
+    var humidity = data.humidity;
+
+    //display current weather
+    tempEl.textContent = temp + "°C";
+    windEl.textContent = wind + "m/s";
+    humidityEl.textContent = humidity + "%";
+    weatherIconEl.setAttribute("src", iconUrl);
+}
 
 //display 5-day forecast 
 var displayForecast = function (forecastData) {
@@ -142,24 +180,49 @@ var displayForecast = function (forecastData) {
         dailyForecastEl.appendChild(humidityEl);
 
         //create UVI and append
-        var uvi = forecastData[i].uvi;
+        var uv = forecastData[i].uvi;
         var uviEl = document.createElement("p");
         uviEl.textContent = "UV Index: ";
-        let uvIndex = document.createElement("span");
-        uvIndex.textContent = uvi;
-        uvIndex.classList = ("uv");
-        uviEl.appendChild(uvIndex);
+        var uvIndexEl = document.createElement("span");
+        uvIndexEl.textContent = uv;
+        uvIndexEl.classList = ("uvFuture");
+        uviEl.appendChild(uvIndexEl);
         dailyForecastEl.appendChild(uviEl);
-        // displayUv(uvi);
 
+        //display and color-code future UVI 
+        switch (true) {
+            case (uv < 3):
+                uvIndexEl.style.backgroundColor = "#3CB371";
+                uvIndexEl.style.color = "white";
+                break;
+            case (uv < 6):
+                uvIndexEl.style.backgroundColor = "#FFD700";
+                uvIndexEl.style.color = "#706897";
+                break;
+            case (uv < 8):
+                uvIndexEl.style.backgroundColor = "#FFA500";
+                uvIndexEl.style.color = "white";
+                break;
+            case (uv < 11):
+                uvIndexEl.style.backgroundColor = "#FF4500";
+                uvIndexEl.style.color = "white";
+                break;
+            case (uv >= 11):
+                uvIndexEl.style.backgroundColor = "#800080";
+                uvIndexEl.style.color = "white";
+                break;
+            default:
+                console.log("none");
+        }
         //append daily forecast card to the container
         forecastEl.appendChild(dailyForecastEl);
     }
 }
 
-//display and color-code UVI 
+//display and color-code current UVI 
 var displayUv = function (uv) {
     console.log(uv);
+    uvEl.textContent = uv;
     switch (true) {
         case (uv < 3):
             uvEl.style.backgroundColor = "#3CB371";
@@ -167,7 +230,7 @@ var displayUv = function (uv) {
             break;
         case (uv < 6):
             uvEl.style.backgroundColor = "#FFD700";
-            uvEl.style.color = "#9088D4";
+            uvEl.style.color = "#706897";
             break;
         case (uv < 8):
             uvEl.style.backgroundColor = "#FFA500";
@@ -186,8 +249,9 @@ var displayUv = function (uv) {
     }
 };
 
-//display the weather condition of a default city
-getCurrentWeather("TORONTO");
+
+//get user's location
+getForecast(cityLocation);
 
 cityFormEl.addEventListener("submit", cityHandler);
 searchHistoryEl.addEventListener("click", historyLinkHandler);

@@ -1,7 +1,6 @@
 :root {
     /* --primary: #FFF3E2; */
     --primary: #fcfbf9;
-
     --secondary:#EBCFC4;
     --tertiary: #acacac;
     --light-dark: #9088D4;
@@ -151,27 +150,28 @@
       border-radius: var(--border-radius);
   }
 
+  
   .icon{
-      max-width: 50px;
+    max-width: 50px;
   }
-
+  
   .current-container{
     border:solid 2px var(--light-dark);
     padding: 2% 3% 1%;
     font-size: 2rem;
     line-height: 1.3;
     margin-bottom: 40px;
-}
-
-/* FORECAST CONTAINER  */
-.future-container{
+  }
+  
+  /* FORECAST CONTAINER  */
+  .future-container{
     font-size: 1.2rem;
     line-height: 1.2;
     margin-bottom: 20px;
     font-weight: bolder;
-}
-
-.forecast-card{
+  }
+  
+  .forecast-card{
     border-radius: var(--border-radius);
     background-color: var(--dark);
     color:var(--primary);
@@ -179,8 +179,12 @@
     margin-bottom:20px;
     font-weight: bolder;
     box-shadow: 5px 5px var(--tertiary);
+  }
+  .uvFuture{
+    padding:0 4%;
+    border-radius: var(--border-radius);
 }
-
+  
 .forecast-card h5{
     color:var(--primary);
     font-size: 1.4rem;
