@@ -8,11 +8,33 @@ var humidityEl = document.querySelector("#humidity");
 var tempEl = document.querySelector("#temp");
 var uvEl = document.querySelector("#uv");
 var weatherIconEl = document.querySelector("#weather-icon");
+var cityFormEl = document.querySelector("#city-form");
+var cityInputEl = document.querySelector("#city-input");
+var searchHistoryEl = document.querySelector("#search-history")
 
-var cityName = "toronto";
+
+
+var cityName = "NEW YORK";
+
+
+var cityHandler = function (event) {
+    event.preventDefault();
+    var cityName = cityInputEl.value.trim().toUpperCase();
+    getCurrentWeather(cityName);
+    //create history link
+    var historyLinkEl = document.createElement("a");
+    historyLinkEl.classList = "list-item flex-row justify-space-between align-center";
+    historyLinkEl.textContent = cityName;
+    searchHistoryEl.appendChild(historyLinkEl);
+}
+
+var historyLinkHandler = function (event) {
+    var cityName = event.target.textContent;
+    getCurrentWeather(cityName)
+}
+
+// fetch current weather data
 var getCurrentWeather = function (cityName) {
-    // event.preventDefault();
-    cityName = cityName.toUpperCase();
     var apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&units=metric&appid=0c623f9105b9300955def28c3a75bb06"
     fetch(apiUrl).then(function (response) {
         if (response.ok) {
@@ -22,7 +44,6 @@ var getCurrentWeather = function (cityName) {
                 var temp = data.main.temp;
                 var wind = data.wind.speed;
                 var humidity = data.main.humidity;
-                console.log(data);
                 var city = {
                     lat: data.coord.lat,
                     lon: data.coord.lon
@@ -35,7 +56,9 @@ var getCurrentWeather = function (cityName) {
                     humidity: humidity
                 }
                 console.log(cityWeather);
+                //display current weather
                 displayCurrentWeather(cityWeather);
+                //display UVI and forecast 
                 fetchOneCall(city);
             })
         } else {
@@ -44,7 +67,7 @@ var getCurrentWeather = function (cityName) {
     })
 };
 
-
+//display current weather data
 var displayCurrentWeather = function (cityWeather) {
     var currentDate = moment().format('l');
     currentTitleEl.textContent = cityWeather.name + " " + currentDate;
@@ -55,15 +78,14 @@ var displayCurrentWeather = function (cityWeather) {
 }
 
 var fetchOneCall = function (city) {
-
-    var apiUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + city.lat + "&lon=" + city.lon + "&exclude=minutely,hourly,alerts&appid=0c623f9105b9300955def28c3a75bb06"
-
+    var apiUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + city.lat + "&lon=" + city.lon + "&exclude=minutely,hourly,alerts&appid=0c623f9105b9300955def28c3a75bb06";
     fetch(apiUrl).then(function (response) {
         if (response.ok) {
             response.json().then(function (data) {
-                console.log("oneCall", data);
+                console.log("APIdata", data);
                 var uv = data.current.uvi;
                 displayUv(uv);
+                displayForecast();
             })
         } else {
             alert("your request failed")
@@ -71,7 +93,7 @@ var fetchOneCall = function (city) {
     })
 };
 
-
+//display and color-code UVI 
 var displayUv = function (uv) {
     uvEl.textContent = uv;
     switch (true) {
@@ -81,6 +103,7 @@ var displayUv = function (uv) {
             break;
         case (uv < 6):
             uvEl.style.backgroundColor = "#FFD700";
+            uvEl.style.color = "#9088D4";
             break;
         case (uv < 8):
             uvEl.style.backgroundColor = "#FFA500";
@@ -98,4 +121,16 @@ var displayUv = function (uv) {
 
 
 };
+
+
+//display 5-day forecast 
+var displayForecast = function (){
+    
+}
+
+
+//display the weather condition for a default city
 getCurrentWeather(cityName)
+
+cityFormEl.addEventListener("submit", cityHandler);
+searchHistoryEl.addEventListener("click", historyLinkHandler);

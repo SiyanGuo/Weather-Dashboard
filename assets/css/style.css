@@ -1,5 +1,7 @@
 :root {
-    --primary: #FFF3E2;
+    /* --primary: #FFF3E2; */
+    --primary: #fcfbf9;
+
     --secondary:#EBCFC4;
     --tertiary: #acacac;
     --light-dark: #9088D4;
@@ -121,7 +123,7 @@
   
   .list-item {
     margin: 10px 0;
-    padding: 1.5%;
+    padding: 1.5% 2.5%;
     border-radius: var(--border-radius);
     background-color: var(--light-dark);
     color: var(--primary);
