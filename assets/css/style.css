@@ -72,29 +72,6 @@
     display: inline;
   }
   
-  /* .btn-back {
-    border-radius: var(--border-radius);
-    color: var(--primary);
-    border: none;
-    outline: none;
-    background-color: var(--light-dark);
-    box-shadow: 3px 3px var(--secondary);
-    transform: translate(-1px, -1px);
-    display: inline-block;
-    width: auto;
-    margin-top: 20px;
-    padding: 15px;
-    text-decoration: none;
-    font-size: 1.2rem;
-  }
-  
-   .btn-back:hover {
-    color: var(--primary);
-    background-color: var(--tertiary);
-    transform: translate(0, 0);
-    box-shadow: 2px 2px var(--dark);
-  } */
-  
   .hero {
     padding: 3% 4% 0%;
     background-color: var(--dark);
@@ -138,21 +115,6 @@
     transform: translate(0, 0);
   }
   
-  /* .status-icon {
-    padding: 2px 5px;
-    margin: 0 5px;
-    background-color: rgba(255,255,255, 1);
-    border-radius: var(--border-radius);
-  } */
-  
-  /* .icon-danger {
-    color: rgb(255, 70, 70);
-  }
-  
-  .icon-success {
-    color: rgb(29, 153, 255);
-  } */
-  
   /* CARDS */
   .card {
     margin: 0 0 50px 0;
@@ -179,19 +141,20 @@
     border-radius: var(--border-radius);
   }
 
-  /* WEATHER CONTAINER */
+  /* CURRENT WEATHER CONTAINER */
   #current-title{
       display: inline-block;
   }
 
-  #uv{
+  .uv{
       padding:0 2%;
       border-radius: var(--border-radius);
-
   }
-  #weather-icon{
+
+  .icon{
       max-width: 50px;
   }
+
   .current-container{
     border:solid 2px var(--light-dark);
     padding: 2% 3% 1%;
@@ -199,6 +162,8 @@
     line-height: 1.3;
     margin-bottom: 40px;
 }
+
+/* FORECAST CONTAINER  */
 .future-container{
     font-size: 1.2rem;
     line-height: 1.2;
@@ -213,16 +178,15 @@
     padding: 0 10px;
     margin-bottom:20px;
     font-weight: bolder;
-    box-shadow: 3px 3px var(--tertiary);
+    box-shadow: 5px 5px var(--tertiary);
 }
 
 .forecast-card h5{
     color:var(--primary);
     font-size: 1.4rem;
-    padding-top:15px;
+    padding:25px 0;
 }
 
-  
   /* HEIGHT / WIDTH UTILS */
   .min-100-vh {
     min-height: 100vh;

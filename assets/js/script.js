@@ -6,17 +6,16 @@ var currentTitleEl = document.querySelector("#current-title");
 var windEl = document.querySelector("#wind");
 var humidityEl = document.querySelector("#humidity");
 var tempEl = document.querySelector("#temp");
-var uvEl = document.querySelector("#uv");
+var uvEl = document.querySelector(".uv");
 var weatherIconEl = document.querySelector("#weather-icon");
 var cityFormEl = document.querySelector("#city-form");
 var cityInputEl = document.querySelector("#city-input");
-var searchHistoryEl = document.querySelector("#search-history")
+var searchHistoryEl = document.querySelector("#search-history");
+var forecastEl = document.querySelector("#forecast");
 
+var currentDate = moment().format('l');
 
-
-var cityName = "NEW YORK";
-
-
+//retrieve city name
 var cityHandler = function (event) {
     event.preventDefault();
     var cityName = cityInputEl.value.trim().toUpperCase();
@@ -28,6 +27,7 @@ var cityHandler = function (event) {
     searchHistoryEl.appendChild(historyLinkEl);
 }
 
+//handle history search links
 var historyLinkHandler = function (event) {
     var cityName = event.target.textContent;
     getCurrentWeather(cityName)
@@ -69,7 +69,6 @@ var getCurrentWeather = function (cityName) {
 
 //display current weather data
 var displayCurrentWeather = function (cityWeather) {
-    var currentDate = moment().format('l');
     currentTitleEl.textContent = cityWeather.name + " " + currentDate;
     tempEl.textContent = cityWeather.temp + "°C";
     windEl.textContent = cityWeather.wind + "m/s";
@@ -77,15 +76,19 @@ var displayCurrentWeather = function (cityWeather) {
     weatherIconEl.setAttribute("src", cityWeather.icon);
 }
 
+
+//fetch forecast data and UVI
 var fetchOneCall = function (city) {
-    var apiUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + city.lat + "&lon=" + city.lon + "&exclude=minutely,hourly,alerts&appid=0c623f9105b9300955def28c3a75bb06";
+    var apiUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + city.lat + "&lon=" + city.lon + "&exclude=minutely,hourly,alerts&units=metric&appid=0c623f9105b9300955def28c3a75bb06";
     fetch(apiUrl).then(function (response) {
         if (response.ok) {
             response.json().then(function (data) {
                 console.log("APIdata", data);
                 var uv = data.current.uvi;
+                var forecastData = data.daily;
+                uvEl.textContent = uv;
                 displayUv(uv);
-                displayForecast();
+                displayForecast(forecastData);
             })
         } else {
             alert("your request failed")
@@ -93,9 +96,67 @@ var fetchOneCall = function (city) {
     })
 };
 
+//display 5-day forecast 
+var displayForecast = function (forecastData) {
+    //clear old content
+    forecastEl.textContent = "";
+
+    for (var i = 0; i < forecastData.length - 3; i++) {
+        //create daily forecast container
+        var dailyForecastEl = document.createElement("div");
+        dailyForecastEl.classList = "forecast-card col-12 col-md-2";
+
+        //create date title and append
+        var dateFormat = moment(moment().add(i + 1, 'days')).format("l");
+        var dateTitleEl = document.createElement("h5");
+        dateTitleEl.textContent = dateFormat;
+        dailyForecastEl.appendChild(dateTitleEl);
+
+        //create icon
+        var iconCode = forecastData[i].weather[0].icon;
+        var iconUrl = "http://openweathermap.org/img/wn/" + iconCode + "@2x.png"
+        var iconEl = document.createElement("img");
+        iconEl.classList = "icon";
+        iconEl.setAttribute("src", iconUrl);
+        dailyForecastEl.appendChild(iconEl);
+
+        //create temp
+        var temp = forecastData[i].temp.day;
+        var tempEl = document.createElement("p");
+        tempEl.textContent = "Temp: " + temp + "°C";
+        dailyForecastEl.appendChild(tempEl);
+
+        //create wind
+        var wind = forecastData[i].wind_speed;
+        var windEl = document.createElement("p");
+        windEl.textContent = "Wind: " + wind + "m/s";
+        dailyForecastEl.appendChild(windEl);
+
+        //create Humidity
+        var humidity = forecastData[i].humidity;
+        var humidityEl = document.createElement("p");
+        humidityEl.textContent = "Humidity: " + humidity + "%";
+        dailyForecastEl.appendChild(humidityEl);
+
+        //create UVI
+        var uvi = forecastData[i].uvi;
+        var uviEl = document.createElement("p");
+        uviEl.textContent = "UV Index: ";
+        let uvIndex = document.createElement("span");
+        uvIndex.textContent = uvi;
+        uvIndex.classList=("uv");
+        uviEl.appendChild(uvIndex);
+        dailyForecastEl.appendChild(uviEl);
+        // displayUv(uvi);
+
+        //append daily forecast card to the container
+        forecastEl.appendChild(dailyForecastEl);
+    }
+}
+
 //display and color-code UVI 
 var displayUv = function (uv) {
-    uvEl.textContent = uv;
+    console.log(uv);
     switch (true) {
         case (uv < 3):
             uvEl.style.backgroundColor = "#3CB371";
@@ -117,20 +178,13 @@ var displayUv = function (uv) {
             uvEl.style.backgroundColor = "#800080";
             uvEl.style.color = "white";
             break;
+        default:
+            console.log("none");
     }
-
-
 };
 
-
-//display 5-day forecast 
-var displayForecast = function (){
-    
-}
-
-
-//display the weather condition for a default city
-getCurrentWeather(cityName)
+//display the weather condition of a default city
+getCurrentWeather("TORONTO");
 
 cityFormEl.addEventListener("submit", cityHandler);
 searchHistoryEl.addEventListener("click", historyLinkHandler);
