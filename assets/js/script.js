@@ -15,16 +15,11 @@ var forecastEl = document.querySelector("#forecast");
 
 var currentDate = moment().format('l');
 
-//retrieve city name
+//retrieve the city name
 var cityHandler = function (event) {
     event.preventDefault();
     var cityName = cityInputEl.value.trim().toUpperCase();
     getCurrentWeather(cityName);
-    //create history link
-    var historyLinkEl = document.createElement("a");
-    historyLinkEl.classList = "list-item flex-row justify-space-between align-center";
-    historyLinkEl.textContent = cityName;
-    searchHistoryEl.appendChild(historyLinkEl);
 }
 
 //handle history search links
@@ -33,53 +28,57 @@ var historyLinkHandler = function (event) {
     getCurrentWeather(cityName)
 }
 
-// fetch current weather data
+// fetch API to request current weather data
 var getCurrentWeather = function (cityName) {
     var apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&units=metric&appid=0c623f9105b9300955def28c3a75bb06"
     fetch(apiUrl).then(function (response) {
         if (response.ok) {
             response.json().then(function (data) {
-                var iconCode = data.weather[0].icon;
-                var iconUrl = "http://openweathermap.org/img/wn/" + iconCode + "@2x.png"
-                var temp = data.main.temp;
-                var wind = data.wind.speed;
-                var humidity = data.main.humidity;
-                var city = {
-                    lat: data.coord.lat,
-                    lon: data.coord.lon
-                }
-                var cityWeather = {
-                    name: cityName,
-                    icon: iconUrl,
-                    temp: temp,
-                    wind: wind,
-                    humidity: humidity
-                }
-                console.log(cityWeather);
-                //display current weather
-                displayCurrentWeather(cityWeather);
+                //display current weather & a history link
+                displayCurrentWeather(data);
                 //display UVI and forecast 
-                fetchOneCall(city);
+                getForecast(data);
             })
         } else {
-            alert("request not successful!")
+            alert("Whoops! We can't find what you are looking for.")
         }
     })
+        .catch(function (err) {
+            alert("Something is wrong with the internet connection.");
+        })
 };
 
-//display current weather data
-var displayCurrentWeather = function (cityWeather) {
-    currentTitleEl.textContent = cityWeather.name + " " + currentDate;
-    tempEl.textContent = cityWeather.temp + "°C";
-    windEl.textContent = cityWeather.wind + "m/s";
-    humidityEl.textContent = cityWeather.humidity + "%";
-    weatherIconEl.setAttribute("src", cityWeather.icon);
+//display current weather and a history link
+var displayCurrentWeather = function (data) {
+    var iconCode = data.weather[0].icon;
+    var iconUrl = "http://openweathermap.org/img/wn/" + iconCode + "@2x.png"
+    var cityName = data.name;
+    var temp = data.main.temp;
+    var wind = data.wind.speed;
+    var humidity = data.main.humidity;
+
+    //display a history link
+    var historyLinkEl = document.createElement("a");
+    historyLinkEl.classList = "list-item flex-row justify-space-between align-center";
+    historyLinkEl.textContent = cityName;
+    searchHistoryEl.appendChild(historyLinkEl);
+
+    //display current weather
+    currentTitleEl.textContent = cityName + " " + currentDate;
+    tempEl.textContent = temp + "°C";
+    windEl.textContent = wind + "m/s";
+    humidityEl.textContent = humidity + "%";
+    weatherIconEl.setAttribute("src", iconUrl);
 }
 
 
 //fetch forecast data and UVI
-var fetchOneCall = function (city) {
-    var apiUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + city.lat + "&lon=" + city.lon + "&exclude=minutely,hourly,alerts&units=metric&appid=0c623f9105b9300955def28c3a75bb06";
+var getForecast = function (data) {
+
+    var lat = data.coord.lat;
+    var lon = data.coord.lon;
+    var apiUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&exclude=minutely,hourly,alerts&units=metric&appid=0c623f9105b9300955def28c3a75bb06";
+
     fetch(apiUrl).then(function (response) {
         if (response.ok) {
             response.json().then(function (data) {
@@ -91,9 +90,12 @@ var fetchOneCall = function (city) {
                 displayForecast(forecastData);
             })
         } else {
-            alert("your request failed")
+            alert("Whoops! We can't find what you are looking for.")
         }
     })
+        .catch(function (err) {
+            alert("Something is wrong with the internet connection.");
+        })
 };
 
 //display 5-day forecast 
@@ -101,6 +103,7 @@ var displayForecast = function (forecastData) {
     //clear old content
     forecastEl.textContent = "";
 
+    //loop over forecast data to create daily forecast card
     for (var i = 0; i < forecastData.length - 3; i++) {
         //create daily forecast container
         var dailyForecastEl = document.createElement("div");
@@ -112,7 +115,7 @@ var displayForecast = function (forecastData) {
         dateTitleEl.textContent = dateFormat;
         dailyForecastEl.appendChild(dateTitleEl);
 
-        //create icon
+        //create icon and append
         var iconCode = forecastData[i].weather[0].icon;
         var iconUrl = "http://openweathermap.org/img/wn/" + iconCode + "@2x.png"
         var iconEl = document.createElement("img");
@@ -120,31 +123,31 @@ var displayForecast = function (forecastData) {
         iconEl.setAttribute("src", iconUrl);
         dailyForecastEl.appendChild(iconEl);
 
-        //create temp
+        //create temp and append
         var temp = forecastData[i].temp.day;
         var tempEl = document.createElement("p");
         tempEl.textContent = "Temp: " + temp + "°C";
         dailyForecastEl.appendChild(tempEl);
 
-        //create wind
+        //create wind and append
         var wind = forecastData[i].wind_speed;
         var windEl = document.createElement("p");
         windEl.textContent = "Wind: " + wind + "m/s";
         dailyForecastEl.appendChild(windEl);
 
-        //create Humidity
+        //create Humidity and append
         var humidity = forecastData[i].humidity;
         var humidityEl = document.createElement("p");
         humidityEl.textContent = "Humidity: " + humidity + "%";
         dailyForecastEl.appendChild(humidityEl);
 
-        //create UVI
+        //create UVI and append
         var uvi = forecastData[i].uvi;
         var uviEl = document.createElement("p");
         uviEl.textContent = "UV Index: ";
         let uvIndex = document.createElement("span");
         uvIndex.textContent = uvi;
-        uvIndex.classList=("uv");
+        uvIndex.classList = ("uv");
         uviEl.appendChild(uvIndex);
         dailyForecastEl.appendChild(uviEl);
         // displayUv(uvi);
