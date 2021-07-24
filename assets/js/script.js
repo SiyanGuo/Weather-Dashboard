@@ -11,6 +11,8 @@ var searchHistoryEl = document.querySelector("#search-history");
 var forecastEl = document.querySelector("#forecast");
 
 var currentDate = moment().format('l');
+
+// create a default city info
 var cityLocation = {
     cityName: "Toronto",
     lat:"43.651070",
@@ -59,27 +61,6 @@ var getLatLon = function (cityName) {
     })
 }
 
-// fetch API to request current weather data
-// var getCurrentWeather = function (cityName) {
-//     var apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&units=metric&appid=0c623f9105b9300955def28c3a75bb06"
-//     fetch(apiUrl).then(function (response) {
-//         if (response.ok) {
-//             response.json().then(function (data) {
-//                 //display current weather & a history link
-//                 displayCurrentWeather(data);
-//                 //display UVI and forecast 
-//                 getForecast(data);
-//             })
-//         } else {
-//             alert("Whoops! We can't find what you are looking for.")
-//         }
-//     })
-//         .catch(function (err) {
-//             alert("Something is wrong with the internet connection.");
-//         })
-// };
-
-
 //fetch forecast data and UVI
 var getForecast = function (cityLocation) {
     displayCityName(cityLocation);
@@ -90,10 +71,8 @@ var getForecast = function (cityLocation) {
             response.json().then(function (data) {
                 console.log("APIdata", data);
                 var currentData = data.current;
-                var uv = data.current.uvi;
                 var forecastData = data.daily;
                 displayCurrentWeather(currentData);
-                displayUv(uv);
                 displayForecast(forecastData);
             })
         } else {
@@ -134,6 +113,34 @@ var displayCurrentWeather = function (data) {
     windEl.textContent = wind + "m/s";
     humidityEl.textContent = humidity + "%";
     weatherIconEl.setAttribute("src", iconUrl);
+
+    //display UVI
+    uvEl.textContent = data.uvi;
+    switch (true) {
+        case (data.uvi < 3):
+            uvEl.style.backgroundColor = "#3CB371";
+            uvEl.style.color = "white";
+            break;
+        case (data.uvi < 6):
+            uvEl.style.backgroundColor = "#FFD700";
+            uvEl.style.color = "#706897";
+            break;
+        case (data.uvi < 8):
+            uvEl.style.backgroundColor = "#FFA500";
+            uvEl.style.color = "white";
+            break;
+        case (data.uvi < 11):
+            uvEl.style.backgroundColor = "#FF4500";
+            uvEl.style.color = "white";
+            break;
+        case (data.uvi >= 11):
+            uvEl.style.backgroundColor = "#800080";
+            uvEl.style.color = "white";
+            break;
+        default:
+            console.log("none");
+    }
+
 }
 
 //display 5-day forecast 
@@ -219,38 +226,7 @@ var displayForecast = function (forecastData) {
     }
 }
 
-//display and color-code current UVI 
-var displayUv = function (uv) {
-    console.log(uv);
-    uvEl.textContent = uv;
-    switch (true) {
-        case (uv < 3):
-            uvEl.style.backgroundColor = "#3CB371";
-            uvEl.style.color = "white";
-            break;
-        case (uv < 6):
-            uvEl.style.backgroundColor = "#FFD700";
-            uvEl.style.color = "#706897";
-            break;
-        case (uv < 8):
-            uvEl.style.backgroundColor = "#FFA500";
-            uvEl.style.color = "white";
-            break;
-        case (uv < 11):
-            uvEl.style.backgroundColor = "#FF4500";
-            uvEl.style.color = "white";
-            break;
-        case (uv >= 11):
-            uvEl.style.backgroundColor = "#800080";
-            uvEl.style.color = "white";
-            break;
-        default:
-            console.log("none");
-    }
-};
-
-
-//get user's location
+//display weather condition for a default city
 getForecast(cityLocation);
 
 cityFormEl.addEventListener("submit", cityHandler);
