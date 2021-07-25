@@ -10,20 +10,23 @@ var cityInputEl = document.querySelector("#city-input");
 var searchHistoryEl = document.querySelector("#search-history");
 var forecastEl = document.querySelector("#forecast");
 
+//obtain current date
 var currentDate = moment().format('l');
+
+//create an array to hold searched city
+var cities = [];
 
 // create a default city info
 var cityLocation = {
     cityName: "Toronto",
-    lat:"43.651070",
-    lon:"-79.347015"
+    lat: "43.651070",
+    lon: "-79.347015",
 }
 
 //retrieve the city name
 var cityHandler = function (event) {
     event.preventDefault();
     var cityName = cityInputEl.value.trim();
-    console.log(cityName);
     getLatLon(cityName);
     cityFormEl.reset();
 }
@@ -37,7 +40,6 @@ var historyLinkHandler = function (event) {
         cityName: cityName,
         lat: lat,
         lon: lon,
-        history:true
     }
     getForecast(cityLocation);
 }
@@ -47,33 +49,31 @@ var getLatLon = function (cityName) {
     fetch(apiUrl).then(function (response) {
         if (response.ok) {
             response.json().then(function (data) {
-                console.log(data);
                 var cityLocation = {
                     cityName: data[0].name,
                     lat: data[0].lat,
-                    lon: data[0].lon
+                    lon: data[0].lon,
                 }
-                getForecast(cityLocation)
+                getForecast(cityLocation);
             })
         } else {
             alert("Whoops! We can't find what you are looking for.")
         }
     })
-}
+};
 
 //fetch forecast data and UVI
 var getForecast = function (cityLocation) {
-    displayCityName(cityLocation);
     //fetch API
     var apiUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + cityLocation.lat + "&lon=" + cityLocation.lon + "&exclude=minutely,hourly,alerts&units=metric&appid=0c623f9105b9300955def28c3a75bb06";
     fetch(apiUrl).then(function (response) {
         if (response.ok) {
             response.json().then(function (data) {
-                console.log("APIdata", data);
                 var currentData = data.current;
                 var forecastData = data.daily;
                 displayCurrentWeather(currentData);
                 displayForecast(forecastData);
+                displayCityName(cityLocation);
             })
         } else {
             alert("Whoops! We can't find what you are looking for.")
@@ -84,12 +84,13 @@ var getForecast = function (cityLocation) {
         })
 };
 
-var displayCityName = function (cityLocation){
+var displayCityName = function (cityLocation) {
     //display city name - heading
     currentTitleEl.textContent = cityLocation.cityName + " " + currentDate;
 
-    //create a history link if it's new
-    if(!cityLocation.history){
+    //create a history link only if it's new
+    if (!cities.includes(cityLocation.cityName)) {
+        cities.push(cityLocation.cityName);
         var historyLinkEl = document.createElement("a");
         historyLinkEl.classList = "list-item flex-row justify-space-between align-center";
         historyLinkEl.textContent = cityLocation.cityName;
@@ -97,7 +98,7 @@ var displayCityName = function (cityLocation){
         historyLinkEl.setAttribute("data-lon", cityLocation.lon);
         searchHistoryEl.appendChild(historyLinkEl);
     }
-}
+};
 
 // display current weather
 var displayCurrentWeather = function (data) {
