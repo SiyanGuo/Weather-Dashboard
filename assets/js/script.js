@@ -46,7 +46,7 @@ var historyLinkHandler = function (event) {
 
 //turn city name into lat & lon
 var getLatLon = function (cityName) {
-    var apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&appid=0c623f9105b9300955def28c3a75bb06"
+    var apiUrl = "https://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&appid=0c623f9105b9300955def28c3a75bb06"
     fetch(apiUrl).then(function (response) {
         if (response.ok) {
             response.json().then(function (data) {
@@ -106,7 +106,7 @@ var displayCityName = function (cityLocation) {
 var displayCurrentWeather = function (data) {
 
     var iconCode = data.weather[0].icon;
-    var iconUrl = "http://openweathermap.org/img/wn/" + iconCode + "@2x.png"
+    var iconUrl = "https://openweathermap.org/img/wn/" + iconCode + "@2x.png"
     var temp = data.temp;
     var wind = data.wind_speed;
     var humidity = data.humidity;
@@ -164,7 +164,7 @@ var displayForecast = function (forecastData) {
 
         //create icon and append
         var iconCode = forecastData[i].weather[0].icon;
-        var iconUrl = "http://openweathermap.org/img/wn/" + iconCode + "@2x.png"
+        var iconUrl = "https://openweathermap.org/img/wn/" + iconCode + "@2x.png"
         var iconEl = document.createElement("img");
         iconEl.classList = "icon";
         iconEl.setAttribute("src", iconUrl);
