@@ -23,7 +23,7 @@ var cityLocation = {
     lon: "-79.347015",
 }
 
-//retrieve the city name
+//retrieve the city name from input
 var cityHandler = function (event) {
     event.preventDefault();
     var cityName = cityInputEl.value.trim();
@@ -31,7 +31,7 @@ var cityHandler = function (event) {
     cityFormEl.reset();
 }
 
-//handle history search links
+//handle search history links
 var historyLinkHandler = function (event) {
     var cityName = event.target.textContent;
     var lat = event.target.getAttribute("data-lat");
@@ -44,6 +44,7 @@ var historyLinkHandler = function (event) {
     getForecast(cityLocation);
 }
 
+//turn city name into lat & lon
 var getLatLon = function (cityName) {
     var apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&appid=0c623f9105b9300955def28c3a75bb06"
     fetch(apiUrl).then(function (response) {
@@ -62,7 +63,7 @@ var getLatLon = function (cityName) {
     })
 };
 
-//fetch forecast data and UVI
+//fetch forecast data and UVI using onecall API
 var getForecast = function (cityLocation) {
     //fetch API
     var apiUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + cityLocation.lat + "&lon=" + cityLocation.lon + "&exclude=minutely,hourly,alerts&units=metric&appid=0c623f9105b9300955def28c3a75bb06";
@@ -84,6 +85,7 @@ var getForecast = function (cityLocation) {
         })
 };
 
+//display city name in the heading and the search history section
 var displayCityName = function (cityLocation) {
     //display city name - heading
     currentTitleEl.textContent = cityLocation.cityName + " " + currentDate;
@@ -109,13 +111,12 @@ var displayCurrentWeather = function (data) {
     var wind = data.wind_speed;
     var humidity = data.humidity;
 
-    //display current weather
     tempEl.textContent = temp + "°C";
     windEl.textContent = wind + "m/s";
     humidityEl.textContent = humidity + "%";
     weatherIconEl.setAttribute("src", iconUrl);
 
-    //display UVI
+    //display and colorcode current UVI
     uvEl.textContent = data.uvi;
     switch (true) {
         case (data.uvi < 3):
@@ -197,7 +198,7 @@ var displayForecast = function (forecastData) {
         uviEl.appendChild(uvIndexEl);
         dailyForecastEl.appendChild(uviEl);
 
-        //display and color-code future UVI 
+        //display and colorcode future UVI 
         switch (true) {
             case (uv < 3):
                 uvIndexEl.style.backgroundColor = "#3CB371";
@@ -230,5 +231,8 @@ var displayForecast = function (forecastData) {
 //display weather condition for a default city
 getForecast(cityLocation);
 
+// event listener on form
 cityFormEl.addEventListener("submit", cityHandler);
+
+//event listener on search history links
 searchHistoryEl.addEventListener("click", historyLinkHandler);
