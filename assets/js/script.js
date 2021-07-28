@@ -14,7 +14,9 @@ var forecastEl = document.querySelector("#forecast");
 var currentDate = moment().format('l');
 
 //create an array to hold searched city
-var cities = [];
+var cities = ["Toronto"];
+// save data in LocalStorage
+var searchedCities = [];
 
 // create a default city info
 var cityLocation = {
@@ -56,9 +58,11 @@ var getLatLon = function (cityName) {
                     lon: data[0].lon,
                 }
                 getForecast(cityLocation);
+                searchedCities.push(cityLocation);
+                localStorage.setItem("history", JSON.stringify(searchedCities))
             })
         } else {
-            alert("Whoops! We can't find what you are looking for.")
+            alert("Error: Whoops! We can't find what you are looking for.")
         }
     })
 };
@@ -77,11 +81,12 @@ var getForecast = function (cityLocation) {
                 displayCityName(cityLocation);
             })
         } else {
-            alert("Whoops! We can't find what you are looking for.")
+            alert("Error: Whoops! We can't find what you are looking for.");
+
         }
     })
         .catch(function (err) {
-            alert("Something is wrong with the internet connection.");
+            alert("Error: Something is wrong with the internet connection.");
         })
 };
 
@@ -228,8 +233,34 @@ var displayForecast = function (forecastData) {
     }
 }
 
-//display weather condition for a default city
-getForecast(cityLocation);
+
+//load searched cities and display the weather for the last searched cities 
+var loadSearchedCities = function () {
+    //get data from localStorage
+    searchedCities = JSON.parse(localStorage.getItem("history"));
+    if (!searchedCities) {
+        //display weather condition for a default city if loadStorage is empty
+        getForecast(cityLocation);
+    } else {
+        //display history links
+        $.each(searchedCities, function (index, val) {
+            var historyLinkEl = document.createElement("a");
+            historyLinkEl.classList = "list-item flex-row justify-space-between align-center";
+            historyLinkEl.textContent = val.cityName;
+            historyLinkEl.setAttribute("data-lat", val.lat);
+            historyLinkEl.setAttribute("data-lon", val.lon);
+            searchHistoryEl.appendChild(historyLinkEl);
+            cities.push(val.cityName);
+        })
+        //fetch weather data for the last searched city
+        getForecast(searchedCities[searchedCities.length - 1]);
+    }
+}
+
+
+//load LocalStorage
+loadSearchedCities();
+
 
 // event listener on form
 cityFormEl.addEventListener("submit", cityHandler);
